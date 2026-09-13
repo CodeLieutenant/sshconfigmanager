@@ -14,6 +14,7 @@
 import AppKit
 import CoreSpotlight
 import SSHConfigCore
+import SSHConfigServices
 import SwiftUI
 
 public struct RootScene: Scene {
@@ -201,12 +202,11 @@ private struct HelpMenuButtons: View {
         Button("SSH Config Manager Help") { openWindow(id: "help") }
             .keyboardShortcut("?", modifiers: .command)
         Divider()
-        Button("Source Code on GitHub") { open(AppLinks.repository) }
-        Button("Report a Bug…") { open(AppLinks.newIssue) }
-    }
-
-    private func open(_ urlString: String) {
-        guard let url = URL(string: urlString) else { return }
-        NSWorkspace.shared.open(url)
+        Button("Source Code on GitHub") { NSWorkspace.shared.open(ProjectLinks.repository) }
+        Button("Report a Bug…") {
+            NSWorkspace.shared.open(
+                ProjectLinks.bugReport(appVersion: DeviceInfo.versionSummary, platform: DeviceInfo.platformSummary))
+        }
+        Button("Request a Feature…") { NSWorkspace.shared.open(ProjectLinks.featureRequest()) }
     }
 }

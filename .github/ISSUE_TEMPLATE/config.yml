@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security problem
+    url: mailto:sshconfigmanager@dusanmalusev.dev
+    about: Do not open a public issue for a vulnerability. Send an email instead.

@@ -1,6 +1,7 @@
 import Adwaita
 import Foundation
 import SSHConfigCore
+import SSHConfigServices
 
 /// The window: sidebar on the left, the selected area on the right.
 ///
@@ -221,8 +222,8 @@ public struct RootView: View {
                 developer: "Dusan Malusev",
                 version: AppVersion.current,
                 icon: .custom(name: "app.sshmanager.SSHConfigManager"),
-                website: .init(string: AppLinks.repository),
-                issues: .init(string: AppLinks.issues)
+                website: ProjectLinks.repository,
+                issues: ProjectLinks.issues
             )
     }
 
@@ -920,11 +921,12 @@ public struct RootView: View {
     private func openIssueTracker() {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/xdg-open")
-        process.arguments = [AppLinks.newIssue]
+        let url = ProjectLinks.bugReport(appVersion: AppVersion.current, platform: SystemInfo.platformSummary)
+        process.arguments = [url.absoluteString]
         do {
             try process.run()
         } catch {
-            show("Open \(AppLinks.newIssue) to report a bug")
+            show("Open \(ProjectLinks.issues.absoluteString) to report a bug")
         }
     }
 

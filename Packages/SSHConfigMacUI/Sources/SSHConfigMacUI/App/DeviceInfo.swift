@@ -14,6 +14,12 @@ enum DeviceInfo {
     static var appBuild: String? {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
     }
+    static var versionSummary: String {
+        [appVersion, appBuild.map { "(\($0))" }].compactMap { $0 }.joined(separator: " ")
+    }
+    static var platformSummary: String {
+        [osVersion, model.map { "(\($0))" }].compactMap { $0 }.joined(separator: " ")
+    }
     static var osVersion: String {
         let v = ProcessInfo.processInfo.operatingSystemVersion
         return "macOS \(v.majorVersion).\(v.minorVersion).\(v.patchVersion)"

@@ -1,0 +1,89 @@
+name: Bug report
+description: Something in SSH Config Manager does not work as expected.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for the report. Remove host names, user names, IP addresses and key material before you submit. Never paste a private key.
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Report a Bug in the Help menu fills this in. Otherwise, find it in About SSH Config Manager.
+      placeholder: 1.2.0 (45)
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system
+      description: The macOS version and Mac model, or the Linux distribution.
+      placeholder: macOS 15.3 (Mac14,2)
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Where did you get the app?
+      options:
+        - Mac App Store
+        - GitHub release (.dmg)
+        - Debian or Ubuntu package (.deb)
+        - Fedora or openSUSE package (.rpm)
+        - Flatpak
+        - Built from source
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Hosts and the config editor
+        - Tunnels
+        - Keys and the SSH agent
+        - Known hosts
+        - Version history
+        - Gist sync
+        - Issues screen
+        - Settings
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the problem. Include the exact error text.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Number each step. Start from a fresh launch of the app.
+      placeholder: |
+        1. Open Tunnels.
+        2. Start the tunnel for bastion.
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Minimal ssh_config
+      description: The smallest `Host` block that shows the problem, with real names replaced.
+      render: ssh-config
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: On macOS, open View ▸ Open Logs (⇧⌘L) and copy the lines. On Linux, run `sshmanager` from a terminal and copy its output.
+      render: text

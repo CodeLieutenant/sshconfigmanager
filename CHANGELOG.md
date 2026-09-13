@@ -72,6 +72,8 @@ Run `scripts/changelog.py check` before you commit. See
   known-hosts editing, code completion, menu-bar items and background host-key
   checks — is available to everyone, with nothing to buy and nothing to unlock.
 - The Mac app needs macOS 15 or later.
+- Report a Bug opens a new GitHub issue form with the app version and your
+  system already filled in. The Mac Help menu also has Request a Feature.
 - The Mac app keeps tunnels, version history, groups, favorites, tags and the
   host key log in a new data store. The first launch after the update moves
   your existing data across. Nothing needs to be set up again.
