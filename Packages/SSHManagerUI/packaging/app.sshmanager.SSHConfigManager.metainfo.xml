@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AppStream metadata. Flathub requires it, GNOME Software reads it, and the
+     .deb and .rpm carry it so the app appears in a software centre. -->
+<component type="desktop-application">
+  <id>app.sshmanager.SSHConfigManager</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Apache-2.0</project_license>
+
+  <name>SSH Config Manager</name>
+  <summary>Edit your SSH configuration, keys and known hosts</summary>
+
+  <description>
+    <p>
+      SSH Config Manager reads and writes the files in your ~/.ssh directory. It
+      shows every host your configuration defines, the settings ssh applies to
+      each one, and the problems that make a connection fail.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Edit host blocks without losing comments, spacing or quoting</li>
+      <li>See the settings ssh applies to a host, including files it includes</li>
+      <li>List your keys with fingerprint, size and randomart</li>
+      <li>Generate an Ed25519 or ECDSA key</li>
+      <li>See which keys your agent holds, and unload one</li>
+      <li>Review known_hosts and forget a key</li>
+      <li>Find weak algorithms, loose permissions and duplicate aliases</li>
+      <li>Keep a version of every file the app writes, and put one back</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">app.sshmanager.SSHConfigManager.desktop</launchable>
+  <url type="homepage">https://github.com/CodeLieutenant/sshconfigmanager</url>
+
+  <developer id="dev.dusanmalusev">
+    <name>Dusan Malusev</name>
+  </developer>
+
+  <content_rating type="oars-1.1" />
+
+  <requires>
+    <display_length compare="ge">560</display_length>
+  </requires>
+
+  <recommends>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </recommends>
+
+  <releases>
+    <release version="0.1.0" date="2026-08-15">
+      <description>
+        <p>First Linux release of the graphical application.</p>
+      </description>
+    </release>
+  </releases>
+</component>

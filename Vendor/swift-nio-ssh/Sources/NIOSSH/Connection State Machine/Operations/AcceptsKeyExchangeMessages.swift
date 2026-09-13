@@ -1,0 +1,61 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the SwiftNIO open source project
+//
+// Copyright (c) 2020 Apple Inc. and the SwiftNIO project authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+// See CONTRIBUTORS.txt for the list of SwiftNIO project authors
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
+protocol AcceptsKeyExchangeMessages {
+    var keyExchangeStateMachine: SSHKeyExchangeStateMachine { get set }
+
+    var parser: SSHPacketParser { get set }
+}
+
+extension AcceptsKeyExchangeMessages {
+    mutating func receiveKeyExchangeMessage(
+        _ message: SSHMessage.KeyExchangeMessage
+    ) throws -> SSHConnectionStateMachine.StateMachineInboundProcessResult {
+        let message = try self.keyExchangeStateMachine.handle(keyExchange: message)
+
+        if let message = message {
+            return .emitMessage(message)
+        } else {
+            return .noMessage
+        }
+    }
+
+    mutating func receiveKeyExchangeInitMessage(
+        _ message: SSHMessage.KeyExchangeECDHInitMessage
+    ) throws -> SSHConnectionStateMachine.StateMachineInboundProcessResult {
+        let message = try self.keyExchangeStateMachine.handle(keyExchangeInit: message)
+
+        if let message = message {
+            return .emitMessage(message)
+        } else {
+            return .noMessage
+        }
+    }
+
+    mutating func receiveKeyExchangeReplyMessage(
+        _ message: SSHMessage.KeyExchangeECDHReplyMessage
+    ) throws -> SSHConnectionStateMachine.StateMachineInboundProcessResult {
+        let message = try self.keyExchangeStateMachine.handle(keyExchangeReply: message)
+        return .possibleFutureMessage(message)
+    }
+
+    /// Received a new keys message. Applies the encryption keys to the parser and reports
+    /// what was negotiated, so the caller can surface it as a user inbound event.
+    @discardableResult
+    mutating func receiveNewKeysMessage() throws -> NIOSSHNegotiatedAlgorithms? {
+        let result = try self.keyExchangeStateMachine.handleNewKeys()
+        self.parser.addEncryption(result)
+        return self.keyExchangeStateMachine.lastNegotiatedAlgorithms
+    }
+}

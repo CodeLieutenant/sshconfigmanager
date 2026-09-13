@@ -1,0 +1,41 @@
+# macOS
+.DS_Store
+build_install/
+# Per-developer signing overrides (team ID + bundle ID prefix)
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+.release
+# Swift Package Manager
+.build/
+.swiftpm/
+.spm-cache/                  # CI-local clonedSourcePackagesDirPath
+
+# CI
+TestResults.xcresult/
+
+# Claude Code per-machine agent memory (machine-specific paths)
+.claude/projects/
+
+# Misc
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Python bytecode (e.g. from .claude skill scripts)
+__pycache__/
+*.pyc
+
+# Local build artifacts
+coverage.txt
+dist/
+.swiftpm/
+
+# Per-developer signing settings (see docs/building.md)
+Config/Local.xcconfig

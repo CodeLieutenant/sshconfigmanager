@@ -1,0 +1,65 @@
+# What sets the floor for this package is NOT glibc. The app links libadwaita,
+# and Adwaita for Swift calls adw_bottom_sheet_*, which arrived in libadwaita
+# 1.6 (GNOME 47). A system older than that cannot run this build whatever glibc
+# it has, so the dependency below states 1.6 and the build container matches it.
+# Reach older systems with the Flatpak, which carries its own GNOME runtime.
+#
+# Run nfpm from Packages/SSHManagerUI (the Makefile does).
+name: sshconfigmanager-gtk
+arch: ${PKG_ARCH}
+platform: linux
+version: ${PKG_VERSION}
+section: utils
+priority: optional
+maintainer: Dusan Malusev <sshconfigmanager@dusanmalusev.dev>
+description: |
+  Manage OpenSSH client configuration from the desktop.
+  SSH Config Manager edits the files in ~/.ssh: host blocks, keys, and known
+  hosts. It reports weak algorithms, loose permissions and duplicate aliases,
+  and it keeps a version of every file it writes.
+vendor: SSH Config Manager
+homepage: https://github.com/CodeLieutenant/sshconfigmanager
+license: Apache-2.0
+
+# The Swift standard library is linked statically (-static-stdlib), so no Swift
+# runtime package is needed. GTK and libadwaita stay dynamic on purpose: they
+# carry the user's theme, accent colour and accessibility settings, and a
+# private copy would ignore all three.
+overrides:
+  deb:
+    depends:
+      - libadwaita-1-0 (>= 1.6)
+      - libgtk-4-1 (>= 4.16)
+      - libglib2.0-0
+      - libc6
+      - libstdc++6
+      - libgcc-s1
+  rpm:
+    depends:
+      - libadwaita >= 1.6
+      - gtk4 >= 4.16
+      - glib2
+      - glibc
+      - libstdc++
+      - libgcc
+
+contents:
+  - src: .build/pkg/sshmanager
+    dst: /usr/bin/sshmanager
+    file_info:
+      mode: 0755
+  - src: packaging/app.sshmanager.SSHConfigManager.desktop
+    dst: /usr/share/applications/app.sshmanager.SSHConfigManager.desktop
+  - src: packaging/app.sshmanager.SSHConfigManager.metainfo.xml
+    dst: /usr/share/metainfo/app.sshmanager.SSHConfigManager.metainfo.xml
+  - src: packaging/app.sshmanager.SSHConfigManager.svg
+    dst: /usr/share/icons/hicolor/scalable/apps/app.sshmanager.SSHConfigManager.svg
+  - src: ../../LICENSE.md
+    dst: /usr/share/doc/sshconfigmanager-gtk/copyright
+  - src: ../../NOTICE.md
+    dst: /usr/share/doc/sshconfigmanager-gtk/NOTICE.md
+
+deb:
+  compression: zstd
+rpm:
+  compression: zstd

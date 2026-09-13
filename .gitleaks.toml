@@ -1,0 +1,27 @@
+title = "SSH Config Manager"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Throwaway keys that the test suites generate and parse"
+paths = [
+  '''^Packages/[^/]+/Tests/''',
+  '''^Vendor/swift-nio-ssh/Tests/''',
+]
+
+[[allowlists]]
+description = "PEM armor text in the OpenSSH private key parser and serializer"
+targetRules = ["private-key"]
+paths = [
+  '''^Packages/SSHConfigKit/Sources/SSHConfigCrypto/OpenSSHPrivateKey\.swift$''',
+  '''^Packages/SSHConfigKit/Sources/SSHConfigCrypto/OpenSSHKeySerializer\.swift$''',
+]
+
+[[allowlists]]
+description = "Swift type annotations that name a private key type"
+targetRules = ["generic-api-key"]
+regexTarget = "secret"
+regexes = [
+  '''^([A-Za-z_][A-Za-z0-9_]*\.)*[A-Za-z0-9_]*PrivateKey$''',
+]

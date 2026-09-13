@@ -1,0 +1,13 @@
+// Per-developer build settings, kept out of project.pbxproj so a clone builds
+// on any machine.
+//
+// Defaults below are the upstream/release values. Local.xcconfig is included
+// LAST so a contributor's values win; it is gitignored — copy
+// Local.xcconfig.example to create it.
+
+DEVELOPMENT_TEAM =
+BUNDLE_ID_PREFIX = com.example
+GITHUB_GIST_CLIENT_ID =
+EXPORT_COMPLIANCE_CODE =
+
+#include? "Local.xcconfig"

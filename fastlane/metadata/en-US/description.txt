@@ -1,0 +1,34 @@
+SSH Config Manager is a fast, native macOS app for everything in your ~/.ssh folder — your config, your keys, your known_hosts, and your tunnels. No Terminal gymnastics, no scattered command-line flags. Just a clean, modern interface built entirely in SwiftUI.
+
+Whether you manage two servers or two hundred, it gives you one place to see and control your entire SSH setup.
+
+— EDIT YOUR CONFIG, LOSSLESSLY —
+Open ~/.ssh/config in a visual host editor or a raw text editor with smart completion. Every comment, blank line, and bit of custom formatting is preserved exactly — the parser never rewrites what it doesn't have to. Search hosts instantly with fuzzy matching, organize them with tags and favorites, and jump to any host in a keystroke.
+
+— BUILT-IN VERSION HISTORY —
+Every change is tracked in a git-style history tree. Browse previous versions, compare them, and restore any point in time with one click. Experiment freely — nothing is ever lost.
+
+— KEYS, AGENT & KNOWN_HOSTS —
+Generate new SSH keys (Ed25519, ECDSA, RSA), browse and manage your known_hosts, and work with your running SSH agent — all from a native interface. No more memorizing ssh-keygen flags.
+
+— TUNNELS THAT RUN IN-PROCESS —
+Create and run SSH tunnels directly inside the app — no Terminal window, no background ssh process to babysit:
+• Local (-L), remote (-R), and dynamic/SOCKS (-D) forwarding
+• Multiple forwards over a single SSH connection
+• Multi-hop ProxyJump support
+• ssh-agent and private-key authentication
+• known_hosts verification with trust-on-first-use for new servers
+• Live throughput, a per-tunnel console, and automatic health monitoring with reconnect
+
+Start a tunnel and it stays up — the app watches it, retries with backoff if the link drops, and shows you exactly what's happening.
+
+— PRIVATE BY DESIGN —
+SSH Config Manager is fully sandboxed and only accesses ~/.ssh after you explicitly grant permission. Your keys, configs, known_hosts, and tunnel traffic stay on your Mac — they're never uploaded anywhere. No ads, no analytics, no third-party tracking, and no account. The only network connections the app makes are the SSH connections you start.
+
+— NATIVE & UNIVERSAL —
+Built with SwiftUI for macOS 15 and later. A true universal app — runs natively on both Apple Silicon and Intel Macs.
+
+— FREE & OPEN SOURCE —
+Every feature is free: in-process tunnels, key generation, SSH agent management, version history, known_hosts editing, smart completion, and system integration. Nothing to buy, no subscription, no account. The source is on GitHub under the Apache License 2.0.
+
+Download SSH Config Manager and take control of your SSH setup, the native Mac way.

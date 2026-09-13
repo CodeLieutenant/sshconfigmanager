@@ -1,0 +1,333 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}-${{ github.event.action == 'labeled' && 'label' || 'code' }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  GITLEAKS_VERSION: 8.30.1
+  SWIFT_TOOLCHAIN: 6.3.3
+
+jobs:
+  changes:
+    if: github.event.action != 'labeled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      swift: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.swift == 'true' }}
+      linux-core: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.kit == 'true' || steps.filter.outputs.bcrypt == 'true' }}
+      gui: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.gui == 'true' }}
+      checks: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.checks == 'true' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Filter paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            workflow: &workflow
+              - .github/workflows/ci.yml
+            swift:
+              - *workflow
+              - '**/*.swift'
+              - .swift-format
+              - scripts/lint.sh
+            kit:
+              - *workflow
+              - Packages/SSHConfigKit/**
+              - Vendor/swift-nio-ssh/**
+            bcrypt:
+              - *workflow
+              - Vendor/swift-bcrypt-pbkdf/**
+            gui:
+              - *workflow
+              - Packages/SSHManagerUI/**
+              - Packages/SSHConfigKit/**
+              - Vendor/swift-bcrypt-pbkdf/**
+              - Vendor/swift-nio-ssh/**
+            checks:
+              - *workflow
+              - CHANGELOG.md
+              - '*.xcodeproj/**'
+              - scripts/**
+              - Makefile
+              - Packages/SSHManagerUI/Makefile
+              - Packages/SSHManagerUI/Sources/SSHManagerUI/Model/AppVersion.swift
+
+  leaks:
+    if: github.event.action != 'labeled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install gitleaks
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/gitleaks.tar.gz" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP" gitleaks
+          "$RUNNER_TEMP/gitleaks" version
+
+      - name: Scan commits
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          range=""
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            range="${PR_BASE}..${PR_HEAD}"
+          elif [ "$EVENT_NAME" = "push" ] && [ -n "$PUSH_BEFORE" ] \
+            && [ "$PUSH_BEFORE" != "0000000000000000000000000000000000000000" ] \
+            && git cat-file -e "${PUSH_BEFORE}^{commit}" 2>/dev/null; then
+            range="${PUSH_BEFORE}..${PUSH_AFTER}"
+          fi
+          if [ -n "$range" ]; then
+            "$RUNNER_TEMP/gitleaks" git --config .gitleaks.toml --redact --no-banner --log-opts="$range" .
+          else
+            "$RUNNER_TEMP/gitleaks" git --config .gitleaks.toml --redact --no-banner .
+          fi
+
+  lint:
+    needs: changes
+    if: needs.changes.outputs.swift == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container: swift:6.2-noble
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Lint
+        run: ./scripts/lint.sh
+
+  checks:
+    needs: changes
+    if: needs.changes.outputs.checks == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Changelog and version
+        run: make changelog-check version-check
+
+  linux-core:
+    needs: changes
+    if: needs.changes.outputs.linux-core == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container: swift:6.2-noble
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Cache SwiftPM builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            Vendor/swift-bcrypt-pbkdf/.build
+            Packages/SSHConfigKit/.build
+          key: linux-core-swift6.2-${{ hashFiles('Packages/SSHConfigKit/Package.resolved', 'Packages/SSHConfigKit/Package.swift', 'Vendor/swift-nio-ssh/Package.resolved', 'Vendor/swift-bcrypt-pbkdf/Package.swift') }}
+          restore-keys: |
+            linux-core-swift6.2-
+
+      - name: Test BcryptPBKDF
+        run: swift test --package-path Vendor/swift-bcrypt-pbkdf
+
+      - name: Test SSHConfigKit
+        run: swift test --package-path Packages/SSHConfigKit
+
+  linux-gui:
+    needs: changes
+    if: needs.changes.outputs.gui == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container: ubuntu:24.10
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Install GTK and libadwaita
+        run: |
+          sed -i 's|//archive.ubuntu.com|//old-releases.ubuntu.com|g; s|//security.ubuntu.com|//old-releases.ubuntu.com|g' \
+            /etc/apt/sources.list.d/ubuntu.sources
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends \
+            curl ca-certificates git make zstd binutils gnupg pkg-config \
+            libgtk-4-dev libadwaita-1-dev \
+            libcurl4-openssl-dev libxml2 libz3-dev libncurses6 libpython3-dev tzdata >/dev/null
+          echo "libadwaita $(pkg-config --modversion libadwaita-1), gtk4 $(pkg-config --modversion gtk4)"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Cache Swift toolchain
+        id: toolchain
+        uses: actions/cache@v4
+        with:
+          path: /opt/swift
+          key: swift-${{ env.SWIFT_TOOLCHAIN }}-ubuntu24.04-x86_64
+
+      - name: Install Swift toolchain
+        if: steps.toolchain.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL -o /tmp/swift.tar.gz \
+            "https://download.swift.org/swift-${SWIFT_TOOLCHAIN}-release/ubuntu2404/swift-${SWIFT_TOOLCHAIN}-RELEASE/swift-${SWIFT_TOOLCHAIN}-RELEASE-ubuntu24.04.tar.gz"
+          mkdir -p /opt/swift
+          tar -xzf /tmp/swift.tar.gz -C /opt/swift --strip-components=1
+          rm /tmp/swift.tar.gz
+
+      - name: Add Swift to PATH
+        run: |
+          echo /opt/swift/usr/bin >> "$GITHUB_PATH"
+          /opt/swift/usr/bin/swift --version
+
+      - name: Cache SwiftPM build
+        uses: actions/cache@v4
+        with:
+          path: Packages/SSHManagerUI/.build
+          key: linux-gui-swift${{ env.SWIFT_TOOLCHAIN }}-${{ hashFiles('Packages/SSHManagerUI/Package.swift', 'Packages/SSHConfigKit/Package.resolved', 'Packages/SSHConfigKit/Package.swift') }}
+          restore-keys: |
+            linux-gui-swift${{ env.SWIFT_TOOLCHAIN }}-
+
+      - name: Build
+        run: make -C Packages/SSHManagerUI build
+
+      - name: Test
+        run: make -C Packages/SSHManagerUI test
+
+  macos:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' &&
+      contains(github.event.pull_request.labels.*.name, 'macos-tests') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'macos-tests'))
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      LC_ALL: en_US.UTF-8
+      LANG: en_US.UTF-8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Select Xcode
+        id: xcode
+        run: |
+          xcode="$(find /Applications -maxdepth 1 -name 'Xcode_*.app' | sort -V | tail -1)"
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+          swift --version
+          echo "version=$(xcodebuild -version | awk 'NR==1 {print $2}')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache SwiftPM checkouts
+        uses: actions/cache@v4
+        with:
+          path: .spm-cache
+          key: spm-${{ runner.os }}-${{ hashFiles('sshconfigmanager.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: |
+            spm-${{ runner.os }}-
+
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: DerivedData
+          key: dd-${{ runner.os }}-xcode${{ steps.xcode.outputs.version }}-${{ hashFiles('sshconfigmanager.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: |
+            dd-${{ runner.os }}-xcode${{ steps.xcode.outputs.version }}-
+
+      - name: Cache SSHConfigMacUI build
+        uses: actions/cache@v4
+        with:
+          path: Packages/SSHConfigMacUI/.build
+          key: macui-${{ runner.os }}-xcode${{ steps.xcode.outputs.version }}-${{ hashFiles('Packages/SSHConfigMacUI/Package.resolved') }}
+          restore-keys: |
+            macui-${{ runner.os }}-xcode${{ steps.xcode.outputs.version }}-
+
+      - name: Resolve packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project sshconfigmanager.xcodeproj \
+            -scheme sshconfigmanager \
+            -clonedSourcePackagesDirPath .spm-cache
+
+      - name: Build for testing
+        run: |
+          xcodebuild build-for-testing \
+            -project sshconfigmanager.xcodeproj \
+            -scheme sshconfigmanager \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            -clonedSourcePackagesDirPath .spm-cache \
+            -derivedDataPath DerivedData \
+            -only-testing:sshconfigmanagerTests \
+            -skip-testing:sshconfigmanagerUITests \
+            -skipPackagePluginValidation \
+            -quiet \
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+      - name: Unit tests
+        timeout-minutes: 10
+        run: |
+          xcodebuild test-without-building \
+            -project sshconfigmanager.xcodeproj \
+            -scheme sshconfigmanager \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            -clonedSourcePackagesDirPath .spm-cache \
+            -derivedDataPath DerivedData \
+            -resultBundlePath TestResults.xcresult \
+            -only-testing:sshconfigmanagerTests \
+            -skip-testing:sshconfigmanagerUITests \
+            -skipPackagePluginValidation \
+            -parallel-testing-enabled NO \
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+      - name: SSHConfigMacUI tests
+        working-directory: Packages/SSHConfigMacUI
+        env:
+          SSHCM_REQUIRE_INTEROP: "1"
+        run: swift test --no-parallel
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults.xcresult
+          if-no-files-found: ignore

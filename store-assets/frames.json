@@ -1,0 +1,374 @@
+{
+  "canvas": {
+    "width": 2880,
+    "height": 1800
+  },
+  "defaults": {
+    "theme": "midnight",
+    "layout": "headlineTop",
+    "windowScale": 0.68,
+    "windowTop": 0.35,
+    "windowBleed": 0.0,
+    "cornerRadius": 26,
+    "headlineSize": 94,
+    "subSize": 42,
+    "subWidthFactor": 0.66,
+    "shadow": {
+      "blur": 120,
+      "dy": 34,
+      "opacity": 0.55
+    }
+  },
+  "themes": {
+    "midnight": {
+      "gradient": [
+        "#060912",
+        "#101A33",
+        "#0A1020"
+      ],
+      "gradientAngle": 112,
+      "headlineColor": "#FFFFFF",
+      "accentColor": "#4DA3FF",
+      "subColor": "#93A1BC",
+      "windowBorder": "#FFFFFF1F",
+      "badgeFill": "#BF5AF2",
+      "badgeText": "#D9A6FF",
+      "calloutFill": "#0D1524F7",
+      "calloutText": "#0A1020",
+      "grid": {
+        "spacing": 120,
+        "color": "#FFFFFF",
+        "opacity": 0.028,
+        "lineWidth": 2
+      },
+      "blobs": [
+        {
+          "at": [
+            0.16,
+            0.1
+          ],
+          "radius": 0.42,
+          "color": "#2C6BFF",
+          "opacity": 0.3
+        },
+        {
+          "at": [
+            0.88,
+            0.82
+          ],
+          "radius": 0.4,
+          "color": "#8B3FE0",
+          "opacity": 0.24
+        }
+      ]
+    },
+    "violet": {
+      "gradient": [
+        "#0B0616",
+        "#20103A",
+        "#120A22"
+      ],
+      "gradientAngle": 112,
+      "headlineColor": "#FFFFFF",
+      "accentColor": "#C77DFF",
+      "subColor": "#A398BC",
+      "windowBorder": "#FFFFFF1F",
+      "badgeFill": "#BF5AF2",
+      "badgeText": "#E0BBFF",
+      "calloutFill": "#150B26F7",
+      "calloutText": "#120A22",
+      "grid": {
+        "spacing": 120,
+        "color": "#FFFFFF",
+        "opacity": 0.028,
+        "lineWidth": 2
+      },
+      "blobs": [
+        {
+          "at": [
+            0.18,
+            0.12
+          ],
+          "radius": 0.42,
+          "color": "#7B2FF0",
+          "opacity": 0.3
+        },
+        {
+          "at": [
+            0.86,
+            0.84
+          ],
+          "radius": 0.4,
+          "color": "#2C6BFF",
+          "opacity": 0.2
+        }
+      ]
+    }
+  },
+  "shots": [
+    {
+      "source": "01-host-detail.png",
+      "output": "01-config.png",
+      "crop": "auto",
+      "headline": "Every SSH host you have,",
+      "accent": "in one native window",
+      "sub": "Edit ~/.ssh/config visually. Comments, blank lines and formatting survive untouched.",
+      "callouts": [
+        {
+          "text": "Fuzzy host search",
+          "detail": "Jump to any host",
+          "shortcut": "\u2318K",
+          "at": [
+            0.027,
+            0.082
+          ],
+          "side": "left"
+        },
+        {
+          "text": "Identity keys",
+          "detail": "Wired into this host",
+          "at": [
+            0.955,
+            0.227
+          ],
+          "side": "right"
+        },
+        {
+          "text": "Copy ssh command",
+          "detail": "Jump hosts included",
+          "at": [
+            0.93,
+            0.562
+          ],
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "source": "04-tunnels.png",
+      "output": "02-tunnels.png",
+      "crop": "auto",
+      "headline": "Port forwarding that",
+      "accent": "stays up on its own",
+      "sub": "Local, remote and SOCKS forwards run inside the app. No Terminal window to babysit.",
+      "callouts": [
+        {
+          "text": "Grouped by host",
+          "detail": "Seven tunnels, four up",
+          "at": [
+            0.225,
+            0.33
+          ],
+          "side": "left"
+        },
+        {
+          "text": "Live throughput",
+          "detail": "Bytes in and out",
+          "at": [
+            0.545,
+            0.365
+          ],
+          "side": "right"
+        },
+        {
+          "text": "Per-tunnel console",
+          "detail": "Every handshake and retry",
+          "at": [
+            0.93,
+            0.62
+          ],
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "source": "08-version-history.png",
+      "output": "03-history.png",
+      "crop": "auto",
+      "headline": "Undo any config change,",
+      "accent": "even yesterday's",
+      "sub": "Every save becomes a snapshot. Compare two versions, restore one in a click.",
+      "callouts": [
+        {
+          "text": "Version tree",
+          "detail": "Every save, snapshotted",
+          "at": [
+            0.027,
+            0.429
+          ],
+          "side": "left"
+        },
+        {
+          "text": "One-click restore",
+          "detail": "Back to any point",
+          "at": [
+            0.955,
+            0.254
+          ],
+          "side": "right"
+        },
+        {
+          "text": "Line-by-line diff",
+          "detail": "Compare any two versions",
+          "at": [
+            0.93,
+            0.719
+          ],
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "source": "05-keys.png",
+      "output": "04-keys.png",
+      "crop": "auto",
+      "headline": "Generate and inspect keys",
+      "accent": "without ssh-keygen flags",
+      "sub": "Ed25519, ECDSA and RSA. Fingerprints, comments and deploy-to-host included.",
+      "callouts": [
+        {
+          "text": "Key library",
+          "detail": "Everything in ~/.ssh",
+          "at": [
+            0.027,
+            0.15
+          ],
+          "side": "left"
+        },
+        {
+          "text": "Fingerprint & randomart",
+          "detail": "SHA-256, at a glance",
+          "at": [
+            0.955,
+            0.288
+          ],
+          "side": "right"
+        },
+        {
+          "text": "Deploy to a host",
+          "detail": "ssh-copy-id, then wired in",
+          "at": [
+            0.93,
+            0.66
+          ],
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "source": "06-agent.png",
+      "output": "05-agent.png",
+      "crop": "auto",
+      "headline": "See exactly what your",
+      "accent": "ssh-agent is holding",
+      "sub": "Every loaded identity, its fingerprint, and where it came from.",
+      "callouts": [
+        {
+          "text": "Agent identities",
+          "detail": "See everything loaded",
+          "at": [
+            0.027,
+            0.191
+          ],
+          "side": "left"
+        },
+        {
+          "text": "Add & remove",
+          "detail": "No ssh-add flags",
+          "at": [
+            0.955,
+            0.199
+          ],
+          "side": "right"
+        },
+        {
+          "text": "Where each key came from",
+          "detail": "Hardware key, 1Password, or disk",
+          "at": [
+            0.93,
+            0.426
+          ],
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "source": "07-known-hosts.png",
+      "output": "06-known-hosts.png",
+      "crop": "auto",
+      "headline": "Check a host key",
+      "accent": "before you trust it",
+      "sub": "Scan a server's key on demand. Clear stale entries after a rebuild.",
+      "callouts": [
+        {
+          "text": "known_hosts viewer",
+          "detail": "Plain and hashed entries",
+          "at": [
+            0.027,
+            0.231
+          ],
+          "side": "left"
+        },
+        {
+          "text": "Verify a host key",
+          "detail": "Live scan against the server",
+          "at": [
+            0.93,
+            0.767
+          ],
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "source": "03-groups.png",
+      "output": "07-groups.png",
+      "crop": "auto",
+      "headline": "Two servers or two hundred,",
+      "accent": "found in a keystroke",
+      "sub": "Groups, tags, favourites and fuzzy search across your whole config.",
+      "callouts": [
+        {
+          "text": "Groups & tags",
+          "detail": "Organise two hundred hosts",
+          "at": [
+            0.027,
+            0.562
+          ],
+          "side": "left"
+        },
+        {
+          "text": "Tunnels on this host",
+          "detail": "Start one without leaving",
+          "at": [
+            0.955,
+            0.368
+          ],
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "source": "02-add-setting.png",
+      "output": "08-options.png",
+      "crop": "auto",
+      "layout": "sideLeft",
+      "windowScale": 0.4,
+      "theme": "violet",
+      "headline": "Every ssh_config option,",
+      "accent": "explained in place",
+      "sub": "Search by name or by what it does, read the description, add it with one click.",
+      "callouts": [
+        {
+          "text": "Inline docs",
+          "detail": "What each option does",
+          "at": [
+            0.88,
+            0.3
+          ],
+          "side": "right"
+        }
+      ]
+    }
+  ]
+}

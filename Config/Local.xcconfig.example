@@ -1,0 +1,17 @@
+// Copy to Config/Local.xcconfig (gitignored) to build signed with your own
+// Apple Developer account:
+//
+//     cp Config/Local.xcconfig.example Config/Local.xcconfig
+//
+// DEVELOPMENT_TEAM  Your 10-character Team ID — Xcode ▸ Settings ▸ Accounts,
+//                   or the top-right of developer.apple.com/account.
+//
+// Leaving this file absent is fine — you can still build and test unsigned:
+//
+//     xcodebuild build -project sshconfigmanager.xcodeproj \
+//       -scheme sshconfigmanager -destination 'platform=macOS' \
+//       CODE_SIGNING_ALLOWED=NO
+
+DEVELOPMENT_TEAM = ABCDE12345
+BUNDLE_ID_PREFIX = com.example
+GITHUB_GIST_CLIENT_ID =

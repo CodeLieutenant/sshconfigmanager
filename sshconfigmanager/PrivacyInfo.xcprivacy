@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Privacy manifest for SSH Config Manager.
+
+	  The app collects nothing. It has no backend, no analytics, no crash
+	  reporting and no account. Everything it reads stays on the Mac, and the only
+	  network traffic is the SSH connections the user starts and the GitHub Gist
+	  sync the user turns on.
+
+	  There is no third-party analytics SDK, no advertising identifier, and no
+	  cross-app tracking — so NSPrivacyTracking is false and the tracking-domain
+	  list is empty.
+
+	  Keep this file consistent with the App Store Connect privacy questionnaire.
+	-->
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<!-- Reading .modificationDate of user-granted ~/.ssh files to detect external edits. -->
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>0A2A.1</string>
+			</array>
+		</dict>
+		<!-- UserDefaults for the app's own UI state (favorites, tags, grouping). -->
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

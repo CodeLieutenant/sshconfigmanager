@@ -1,0 +1,183 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background -->
+    <linearGradient id="bg" x1=".15" y1="0" x2=".85" y2="1">
+      <stop offset="0" stop-color="#041828"/>
+      <stop offset="1" stop-color="#010810"/>
+    </linearGradient>
+
+    <!-- Shield stroke gradient (top-bright → bottom-dim) -->
+    <linearGradient id="shieldStroke" x1=".1" y1="0" x2=".9" y2="1">
+      <stop offset="0"   stop-color="#7dd3fc"/>
+      <stop offset="0.4" stop-color="#38bdf8"/>
+      <stop offset="1"   stop-color="#075985"/>
+    </linearGradient>
+
+    <!-- Inner shield rim (subtler) -->
+    <linearGradient id="shieldRim" x1=".1" y1="0" x2=".9" y2="1">
+      <stop offset="0"   stop-color="#38bdf8" stop-opacity=".28"/>
+      <stop offset="1"   stop-color="#0284c7" stop-opacity=".06"/>
+    </linearGradient>
+
+    <!-- Ambient radial glow -->
+    <radialGradient id="ambientGlow" cx="50%" cy="47%" r="50%">
+      <stop offset="0"   stop-color="#38bdf8" stop-opacity=".50"/>
+      <stop offset="0.5" stop-color="#0ea5e9" stop-opacity=".18"/>
+      <stop offset="1"   stop-color="#0284c7" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Lock body fill -->
+    <linearGradient id="lockFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a2236"/>
+      <stop offset="1" stop-color="#020d1a"/>
+    </linearGradient>
+
+    <!-- Keyhole glow -->
+    <radialGradient id="keyholeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0"   stop-color="#7dd3fc" stop-opacity=".9"/>
+      <stop offset="0.5" stop-color="#38bdf8" stop-opacity=".5"/>
+      <stop offset="1"   stop-color="#0ea5e9" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Top sheen strip -->
+    <linearGradient id="topSheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".10"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Clip the entire icon to rounded rect -->
+    <clipPath id="iconClip">
+      <rect width="1024" height="1024" rx="226"/>
+    </clipPath>
+    <!-- Clip tunnel rings to shield inner area only (avoids overlapping inner rim) -->
+    <clipPath id="shieldClip">
+      <path d="M 512,200 L 756,312 L 756,514 C 756,652 644,758 512,808 C 380,758 268,652 268,514 L 268,312 Z"/>
+    </clipPath>
+
+    <!-- Glow filters -->
+    <filter id="gSmall"  x="-60%"  y="-60%"  width="220%" height="220%">
+      <feGaussianBlur stdDeviation="8"  result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="gMed"   x="-80%"  y="-80%"  width="260%" height="260%">
+      <feGaussianBlur stdDeviation="18" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="gLarge"  x="-120%" y="-120%" width="340%" height="340%">
+      <feGaussianBlur stdDeviation="36" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="blurOnly" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="30"/>
+    </filter>
+    <!-- SSH double-layer neon glow -->
+    <filter id="sshGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="b1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="24" result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- ── Background ── -->
+  <rect width="1024" height="1024" rx="226" fill="url(#bg)"/>
+
+  <!-- Top-sheen strip (glass lid) -->
+  <rect width="1024" height="420" fill="url(#topSheen)" clip-path="url(#iconClip)"/>
+
+  <!-- ── Ambient glow blob ── -->
+  <ellipse cx="512" cy="480" rx="380" ry="360" fill="url(#ambientGlow)"/>
+
+  <!-- ── Subtle halo behind shield (bloom) ── -->
+  <path d="M 512,136  L 808,268  L 808,514
+           C 808,686 672,808 512,866
+           C 352,808 216,686 216,514  L 216,268 Z"
+        fill="#38bdf8" fill-opacity=".07" filter="url(#blurOnly)"/>
+
+  <!-- ── Shield body ── -->
+  <path d="M 512,136  L 808,268  L 808,514
+           C 808,686 672,808 512,866
+           C 352,808 216,686 216,514  L 216,268 Z"
+        fill="#020f1c"/>
+
+  <!-- Shield outer stroke (glowing rim) -->
+  <path d="M 512,136  L 808,268  L 808,514
+           C 808,686 672,808 512,866
+           C 352,808 216,686 216,514  L 216,268 Z"
+        fill="none" stroke="url(#shieldStroke)" stroke-width="9"
+        filter="url(#gSmall)"/>
+
+  <!-- Shield inner rim (inset ~52px) -->
+  <path d="M 512,200  L 756,312  L 756,514
+           C 756,652 644,758 512,808
+           C 380,758 268,652 268,514  L 268,312 Z"
+        fill="none" stroke="url(#shieldRim)" stroke-width="4"/>
+
+  <!-- Glass sheen: top facet of shield -->
+  <path d="M 512,136  L 808,268  L 756,312  L 512,200  L 268,312  L 216,268 Z"
+        fill="#38bdf8" fill-opacity=".06"/>
+
+  <!-- ── Tunnel rings — perspective circles radiating from keyhole centre ── -->
+  <g clip-path="url(#shieldClip)">
+    <!-- Outermost → innermost, getting brighter toward center -->
+    <circle cx="512" cy="454" r="310" fill="none" stroke="#38bdf8" stroke-width="1.2" stroke-opacity=".06"/>
+    <circle cx="512" cy="454" r="255" fill="none" stroke="#38bdf8" stroke-width="1.4" stroke-opacity=".10"/>
+    <circle cx="512" cy="454" r="202" fill="none" stroke="#38bdf8" stroke-width="1.6" stroke-opacity=".15"/>
+    <circle cx="512" cy="454" r="152" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-opacity=".22" filter="url(#gSmall)"/>
+    <circle cx="512" cy="454" r="106" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-opacity=".32" filter="url(#gSmall)"/>
+    <circle cx="512" cy="454" r="64"  fill="none" stroke="#7dd3fc" stroke-width="2.6" stroke-opacity=".44" filter="url(#gSmall)"/>
+  </g>
+
+  <!-- ── Lock shackle (shorter arch, narrower) ── -->
+  <!-- Shackle glow bloom -->
+  <path d="M 460,404  L 460,326
+           C 460,272 564,272 564,326  L 564,404"
+        fill="none" stroke="#0ea5e9" stroke-width="28"
+        stroke-linecap="round" filter="url(#blurOnly)" opacity=".55"/>
+  <!-- Shackle main -->
+  <path d="M 460,404  L 460,326
+           C 460,272 564,272 564,326  L 564,404"
+        fill="none" stroke="#38bdf8" stroke-width="26"
+        stroke-linecap="round" filter="url(#gMed)"/>
+  <!-- Shackle inner shimmer -->
+  <path d="M 471,404  L 471,330
+           C 471,292 553,292 553,330  L 553,404"
+        fill="none" stroke="#bae6fd" stroke-width="7"
+        stroke-linecap="round" stroke-opacity=".38"/>
+
+  <!-- ── Lock body ── -->
+  <!-- Body glow -->
+  <rect x="406" y="393" width="212" height="142" rx="26"
+        fill="#38bdf8" fill-opacity=".15" filter="url(#blurOnly)"/>
+  <!-- Body -->
+  <rect x="416" y="400" width="192" height="130" rx="22"
+        fill="url(#lockFill)" stroke="#38bdf8" stroke-width="6"/>
+  <!-- Body top highlight -->
+  <rect x="416" y="400" width="192" height="30" rx="22"
+        fill="#38bdf8" fill-opacity=".07"/>
+
+  <!-- ── Keyhole ── -->
+  <circle cx="512" cy="454" r="32" fill="url(#keyholeGlow)" filter="url(#gMed)"/>
+  <circle cx="512" cy="454" r="22" fill="#020f1c" stroke="#38bdf8" stroke-width="5"/>
+  <circle cx="512" cy="454" r="10" fill="#38bdf8"/>
+  <rect x="507" y="462" width="10" height="34" rx="3" fill="#38bdf8"/>
+
+  <!-- ── SSH label — big, below lock, inside shield ── -->
+  <text x="512" y="656"
+        text-anchor="middle"
+        font-family="'SF Mono','JetBrains Mono','Menlo',monospace"
+        font-size="96" font-weight="700" letter-spacing="20"
+        fill="#38bdf8" fill-opacity=".70"
+        filter="url(#sshGlow)">SSH</text>
+
+  <!-- ── Outer icon border (barely visible glass rim) ── -->
+  <rect width="1024" height="1024" rx="226"
+        fill="none" stroke="#38bdf8" stroke-width="3" stroke-opacity=".18"/>
+  <!-- Top glint -->
+  <rect x="1" y="1" width="1022" height="460" rx="225"
+        fill="none" stroke="#fff" stroke-width="2" stroke-opacity=".05"
+        clip-path="url(#iconClip)"/>
+</svg>

@@ -1,0 +1,385 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      testflight_only:
+        description: Upload to TestFlight and deliver metadata without submitting for review
+        type: boolean
+        default: false
+      developer_id:
+        description: Build, notarize and attach a Developer ID .dmg
+        type: boolean
+        default: false
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  SWIFT_TOOLCHAIN: 6.3.3
+  NFPM_VERSION: 2.47.0
+  RUBY_VERSION: "3.4"
+
+jobs:
+  app-store:
+    runs-on: macos-26
+    timeout-minutes: 90
+    env:
+      APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_KEYCHAIN_NAME: fastlane_tmp_keychain
+      MATCH_KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      SUBMIT_FOR_REVIEW: ${{ !inputs.testflight_only }}
+      FASTLANE_SKIP_UPDATE_CHECK: "1"
+      FASTLANE_HIDE_CHANGELOG: "1"
+      LC_ALL: en_US.UTF-8
+      LANG: en_US.UTF-8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Select Xcode
+        run: |
+          xcode="$(find /Applications -maxdepth 1 -name 'Xcode_*.app' | sort -V | tail -1)"
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+
+      - name: Write Config/Local.xcconfig
+        env:
+          GITHUB_GIST_CLIENT_ID: ${{ secrets.GITHUB_GIST_CLIENT_ID }}
+          EXPORT_COMPLIANCE_CODE: ${{ secrets.EXPORT_COMPLIANCE_CODE }}
+        run: |
+          prefix="${APP_IDENTIFIER%.sshconfigmanager}"
+          if [ -z "$APP_IDENTIFIER" ] || [ "$prefix" = "$APP_IDENTIFIER" ]; then
+            echo "::error::APP_IDENTIFIER must be set and end in .sshconfigmanager"
+            exit 1
+          fi
+          {
+            printf 'DEVELOPMENT_TEAM = %s\n' "$APPLE_TEAM_ID"
+            printf 'BUNDLE_ID_PREFIX = %s\n' "$prefix"
+            printf 'GITHUB_GIST_CLIENT_ID = %s\n' "$GITHUB_GIST_CLIENT_ID"
+            printf 'EXPORT_COMPLIANCE_CODE = %s\n' "$EXPORT_COMPLIANCE_CODE"
+          } > Config/Local.xcconfig
+
+      - name: Decode App Store Connect API key
+        env:
+          ASC_API_KEY_BASE64: ${{ secrets.ASC_API_KEY_BASE64 }}
+        run: |
+          printf '%s' "$ASC_API_KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
+          {
+            echo 'ASC_API_KEY<<ASC_API_KEY_END'
+            cat "$RUNNER_TEMP/AuthKey.p8"
+            echo
+            echo 'ASC_API_KEY_END'
+          } >> "$GITHUB_ENV"
+          rm "$RUNNER_TEMP/AuthKey.p8"
+
+      - name: Load match deploy key
+        env:
+          MATCH_GIT_SSH_KEY: ${{ secrets.MATCH_GIT_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -t ed25519,rsa github.com >> ~/.ssh/known_hosts 2>/dev/null
+          printf '%s' "$MATCH_GIT_SSH_KEY" | base64 --decode > "$RUNNER_TEMP/match_key"
+          chmod 600 "$RUNNER_TEMP/match_key"
+          eval "$(ssh-agent -s)"
+          ssh-add "$RUNNER_TEMP/match_key"
+          rm "$RUNNER_TEMP/match_key"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+
+      - name: Build, upload and deliver
+        run: bundle exec fastlane mac release "submit:$SUBMIT_FOR_REVIEW"
+
+  developer-id:
+    if: github.event_name == 'push' || inputs.developer_id
+    runs-on: macos-26
+    timeout-minutes: 90
+    env:
+      APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_KEYCHAIN_NAME: fastlane_tmp_keychain
+      MATCH_KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      FASTLANE_SKIP_UPDATE_CHECK: "1"
+      FASTLANE_HIDE_CHANGELOG: "1"
+      LC_ALL: en_US.UTF-8
+      LANG: en_US.UTF-8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Select Xcode
+        run: |
+          xcode="$(find /Applications -maxdepth 1 -name 'Xcode_*.app' | sort -V | tail -1)"
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+
+      - name: Write Config/Local.xcconfig
+        env:
+          GITHUB_GIST_CLIENT_ID: ${{ secrets.GITHUB_GIST_CLIENT_ID }}
+          EXPORT_COMPLIANCE_CODE: ${{ secrets.EXPORT_COMPLIANCE_CODE }}
+        run: |
+          prefix="${APP_IDENTIFIER%.sshconfigmanager}"
+          if [ -z "$APP_IDENTIFIER" ] || [ "$prefix" = "$APP_IDENTIFIER" ]; then
+            echo "::error::APP_IDENTIFIER must be set and end in .sshconfigmanager"
+            exit 1
+          fi
+          {
+            printf 'DEVELOPMENT_TEAM = %s\n' "$APPLE_TEAM_ID"
+            printf 'BUNDLE_ID_PREFIX = %s\n' "$prefix"
+            printf 'GITHUB_GIST_CLIENT_ID = %s\n' "$GITHUB_GIST_CLIENT_ID"
+            printf 'EXPORT_COMPLIANCE_CODE = %s\n' "$EXPORT_COMPLIANCE_CODE"
+          } > Config/Local.xcconfig
+
+      - name: Decode App Store Connect API key
+        env:
+          ASC_API_KEY_BASE64: ${{ secrets.ASC_API_KEY_BASE64 }}
+        run: |
+          printf '%s' "$ASC_API_KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
+          {
+            echo 'ASC_API_KEY<<ASC_API_KEY_END'
+            cat "$RUNNER_TEMP/AuthKey.p8"
+            echo
+            echo 'ASC_API_KEY_END'
+          } >> "$GITHUB_ENV"
+          rm "$RUNNER_TEMP/AuthKey.p8"
+
+      - name: Load match deploy key
+        env:
+          MATCH_GIT_SSH_KEY: ${{ secrets.MATCH_GIT_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -t ed25519,rsa github.com >> ~/.ssh/known_hosts 2>/dev/null
+          printf '%s' "$MATCH_GIT_SSH_KEY" | base64 --decode > "$RUNNER_TEMP/match_key"
+          chmod 600 "$RUNNER_TEMP/match_key"
+          eval "$(ssh-agent -s)"
+          ssh-add "$RUNNER_TEMP/match_key"
+          rm "$RUNNER_TEMP/match_key"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+
+      - name: Build, notarize and package
+        run: bundle exec fastlane mac developerid
+
+      - name: Upload .dmg
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: build/SSHConfigManager.dmg
+          if-no-files-found: error
+
+  linux-packages:
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+            toolchain_dir: ubuntu2404
+            toolchain_suffix: ""
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            toolchain_dir: ubuntu2404-aarch64
+            toolchain_suffix: "-aarch64"
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    container: ubuntu:24.10
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Install build dependencies
+        run: |
+          sed -i 's|//archive.ubuntu.com|//old-releases.ubuntu.com|g; s|//security.ubuntu.com|//old-releases.ubuntu.com|g; s|//ports.ubuntu.com/ubuntu-ports|//old-releases.ubuntu.com/ubuntu|g' \
+            /etc/apt/sources.list.d/ubuntu.sources
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends \
+            curl ca-certificates git make zstd binutils gnupg pkg-config \
+            libgtk-4-dev libadwaita-1-dev \
+            libcurl4-openssl-dev libxml2 libz3-dev libncurses6 libpython3-dev tzdata >/dev/null
+          echo "libadwaita $(pkg-config --modversion libadwaita-1), gtk4 $(pkg-config --modversion gtk4)"
+
+      - name: Install nfpm
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          curl -fsSL -o /tmp/nfpm.deb \
+            "https://github.com/goreleaser/nfpm/releases/download/v${NFPM_VERSION}/nfpm_${NFPM_VERSION}_${ARCH}.deb"
+          dpkg -i /tmp/nfpm.deb
+          nfpm --version
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install Swift toolchain
+        env:
+          TOOLCHAIN_DIR: ${{ matrix.toolchain_dir }}
+          TOOLCHAIN_SUFFIX: ${{ matrix.toolchain_suffix }}
+        run: |
+          curl -fsSL -o /tmp/swift.tar.gz \
+            "https://download.swift.org/swift-${SWIFT_TOOLCHAIN}-release/${TOOLCHAIN_DIR}/swift-${SWIFT_TOOLCHAIN}-RELEASE/swift-${SWIFT_TOOLCHAIN}-RELEASE-ubuntu24.04${TOOLCHAIN_SUFFIX}.tar.gz"
+          mkdir -p /opt/swift
+          tar -xzf /tmp/swift.tar.gz -C /opt/swift --strip-components=1
+          rm /tmp/swift.tar.gz
+          echo /opt/swift/usr/bin >> "$GITHUB_PATH"
+
+      - name: Build release binary
+        working-directory: Packages/SSHManagerUI
+        run: |
+          swift build -c release -Xswiftc -static-stdlib
+          mkdir -p .build/release-container
+          cp .build/release/sshmanager .build/release-container/sshmanager
+          strip .build/release-container/sshmanager
+
+      - name: Package .deb and .rpm
+        run: make -C Packages/SSHManagerUI package ARCH=${{ matrix.arch }}
+
+      - name: Upload binary for Flatpak
+        if: matrix.arch == 'amd64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-linux-amd64
+          path: Packages/SSHManagerUI/.build/release-container/sshmanager
+          if-no-files-found: error
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.arch }}
+          path: |
+            Packages/SSHManagerUI/dist/*.deb
+            Packages/SSHManagerUI/dist/*.rpm
+          if-no-files-found: error
+
+  flatpak:
+    needs: linux-packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FLATPAK_MANIFEST: Packages/SSHManagerUI/packaging/flatpak/app.sshmanager.SSHConfigManager.yml
+      FLATPAK_APP_ID: app.sshmanager.SSHConfigManager
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Download binary
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-linux-amd64
+          path: Packages/SSHManagerUI/.build/release-container
+
+      - name: Install flatpak-builder
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends flatpak flatpak-builder >/dev/null
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+      - name: Cache GNOME runtime
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/flatpak
+          key: flatpak-runtime-gnome47-${{ runner.os }}-${{ hashFiles('Packages/SSHManagerUI/packaging/flatpak/app.sshmanager.SSHConfigManager.yml') }}
+          restore-keys: |
+            flatpak-runtime-gnome47-${{ runner.os }}-
+
+      - name: Cache flatpak-builder state
+        uses: actions/cache@v4
+        with:
+          path: .flatpak-builder
+          key: flatpak-builder-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            flatpak-builder-${{ runner.os }}-
+
+      - name: Install GNOME 47 runtime and SDK
+        run: flatpak install --user --noninteractive --or-update flathub org.gnome.Platform//47 org.gnome.Sdk//47
+
+      - name: Build bundle
+        run: |
+          flatpak-builder --user --force-clean --disable-rofiles-fuse \
+            --state-dir=.flatpak-builder --repo=flatpak-repo --default-branch=stable \
+            flatpak-build "$FLATPAK_MANIFEST"
+          flatpak build-bundle \
+            --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo \
+            flatpak-repo sshconfigmanager.flatpak "$FLATPAK_APP_ID" stable
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: flatpak
+          path: sshconfigmanager.flatpak
+          if-no-files-found: error
+
+  github-release:
+    needs: [linux-packages, flatpak, developer-id]
+    if: >-
+      always()
+      && startsWith(github.ref, 'refs/tags/v')
+      && needs.linux-packages.result == 'success'
+      && needs.flatpak.result == 'success'
+      && (needs.developer-id.result == 'success' || needs.developer-id.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Render release notes
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          python3 scripts/changelog.py show "$version" \
+            | sed -E '1s/^/## /; s/^  \[([a-z]+)\] /- **\1:** /' > "$RUNNER_TEMP/notes.md"
+          cat "$RUNNER_TEMP/notes.md"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: ${{ runner.temp }}/notes.md
+          files: |
+            dist/*.deb
+            dist/*.rpm
+            dist/*.dmg
+            dist/*.flatpak
+          fail_on_unmatched_files: false

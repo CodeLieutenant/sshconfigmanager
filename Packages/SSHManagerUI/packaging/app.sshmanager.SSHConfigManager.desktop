@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=SSH Config Manager
+GenericName=SSH Configuration Editor
+Comment=Edit your SSH configuration, keys and known hosts
+Exec=sshmanager
+Icon=app.sshmanager.SSHConfigManager
+Terminal=false
+Categories=Development;System;Network;
+Keywords=ssh;config;keys;tunnel;known_hosts;openssh;
+StartupNotify=true
+StartupWMClass=sshmanager

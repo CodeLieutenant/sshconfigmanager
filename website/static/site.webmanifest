@@ -1,0 +1,16 @@
+{
+  "name": "SSH Config Manager",
+  "short_name": "SSH Config",
+  "description": "Open-source SSH configs, keys and tunnels for macOS and Linux. Edit ~/.ssh/config losslessly, manage keys and known_hosts, and run in-process SSH tunnels.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "categories": ["developer", "productivity", "utilities"],
+  "icons": [
+    { "src": "icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "favicon.png", "type": "image/png", "sizes": "32x32" },
+    { "src": "apple-touch-icon.png", "type": "image/png", "sizes": "180x180" }
+  ]
+}

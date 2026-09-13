@@ -1,0 +1,466 @@
+# On CI everything runs `readonly` into a throwaway keychain, so CI never
+# mints new certs (Apple caps how many Developer ID certs a team can have).
+
+require "open3"
+
+default_platform(:mac)
+
+SCHEME    = "sshconfigmanager"
+PROJECT   = "sshconfigmanager.xcodeproj"
+BUILD_DIR = "build"
+OUTPUT    = "SSHConfigManager"         # names build/SSHConfigManager.{pkg,app,dmg}
+
+def required_env(name)
+  value = ENV[name].to_s.strip
+  UI.user_error!("#{name} is not set. docs/releasing.md lists every release variable.") if value.empty?
+  value
+end
+
+def release_app_id
+  id = required_env("APP_IDENTIFIER")
+  UI.user_error!("APP_IDENTIFIER must end in .#{SCHEME}, got #{id}") unless id.end_with?(".#{SCHEME}")
+  id
+end
+
+def release_team_id
+  required_env("APPLE_TEAM_ID")
+end
+
+def bundle_id_prefix
+  release_app_id.delete_suffix(".#{SCHEME}")
+end
+
+def sign_args
+  "-allowProvisioningUpdates DEVELOPMENT_TEAM=#{release_team_id} BUNDLE_ID_PREFIX=#{bundle_id_prefix}"
+end
+
+def submit_for_review?(options)
+  value = options.key?(:submit) ? options[:submit] : ENV.fetch("SUBMIT_FOR_REVIEW", "false")
+  value.to_s.strip.downcase == "true"
+end
+
+platform :mac do
+  # --- helpers -------------------------------------------------------------
+
+  # App Store Connect API key from env (CI) or a local .p8. The release
+  # workflow exports the raw .p8 contents as ASC_API_KEY.
+  def asc_api_key
+    app_store_connect_api_key(
+      key_id:      ENV["ASC_KEY_ID"],
+      issuer_id:   ENV["ASC_ISSUER_ID"],
+      key_content: ENV["ASC_API_KEY"],   # raw .p8 contents (not base64)
+      is_key_content_base64: false,
+      in_house:    false
+    )
+  end
+
+  # Pull identities read-only on CI; allow creation only when run locally.
+  # Use the API key when its env vars are present (CI); otherwise fall back to
+  # interactive Apple ID login — handy for the one-time local `setup_certs`.
+  def sync_certs(type, extra = {})
+    opts = {
+      type: type,
+      platform: "macos",
+      readonly: is_ci,
+      git_url: required_env("MATCH_GIT_URL"),
+      app_identifier: [release_app_id],
+      team_id: release_team_id
+    }
+    opts[:api_key] = asc_api_key if ENV["ASC_KEY_ID"]
+    match(opts.merge(extra))
+  end
+
+  # The "What's New" text is generated, never hand-edited. CHANGELOG.md
+  # is the source; scripts/changelog.py renders the section whose version matches
+  # MARKETING_VERSION, or [Unreleased] when that version is not cut yet — which is
+  # the normal state for a TestFlight build. The script fails the lane when the
+  # section is empty or the text passes Apple's 4000-character limit.
+  #
+  # write: true rewrites fastlane/metadata/en-US/release_notes.txt, the file
+  # deliver uploads. Commit that file — it is the record of what was submitted.
+  def changelog_notes(write: false)
+    args = ["python3", "../scripts/changelog.py", "notes", "--project"]
+    args << "--write" if write
+    out, err, status = Open3.capture3(*args)
+    err.strip.each_line { |line| UI.important(line.chomp) }
+    UI.user_error!("scripts/changelog.py notes failed") unless status.success?
+    out.strip
+  end
+
+  before_all do
+    setup_ci   # temp keychain + agent on CI; no-op locally
+  end
+
+  # --- one-time bootstrap --------------------------------------------------
+
+  desc "One-time (run locally): create & store ALL distribution identities"
+  lane :setup_certs do
+    # Mac App Store: Apple Distribution cert + Mac Installer Distribution cert
+    # + the Mac App Store provisioning profile.
+    sync_certs("appstore", additional_cert_types: ["mac_installer_distribution"])
+    # Developer ID: the cert that signs the notarized .dmg.
+    sync_certs("developer_id")
+    UI.success("Done. Certs are in your keychain + pushed to the match repo. Save your MATCH_PASSWORD!")
+  end
+
+  # --- Mac App Store -------------------------------------------------------
+
+  desc "Build the signed Mac App Store .pkg"
+  lane :build_appstore do
+    sync_certs("appstore", additional_cert_types: ["mac_installer_distribution"])
+    build_mac_app(
+      project: PROJECT,
+      scheme: SCHEME,
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: BUILD_DIR,
+      output_name: OUTPUT,
+      xcargs: sign_args
+    )
+  end
+
+  desc "Build the MAS .pkg and upload it to TestFlight"
+  lane :beta do
+    notes = changelog_notes
+    build_appstore
+    upload_testflight(notes)
+  end
+
+  def upload_testflight(notes)
+    pilot(
+      api_key: asc_api_key,
+      app_identifier: release_app_id,
+      pkg: "#{BUILD_DIR}/#{OUTPUT}.pkg",
+      changelog: notes,             # "What to Test", from CHANGELOG.md
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  desc "Rewrite release_notes.txt from CHANGELOG.md (no build, no upload)"
+  lane :release_notes do
+    changelog_notes(write: true)
+    UI.success("fastlane/metadata/en-US/release_notes.txt is up to date. Review it, then commit.")
+  end
+
+  desc "Run App Store metadata precheck only (diagnostic, no upload)"
+  lane :precheck_only do
+    precheck(
+      api_key: asc_api_key,
+      app_identifier: release_app_id,
+      platform: "osx",
+      include_in_app_purchases: false
+    )
+  end
+
+  desc "Build once, upload to TestFlight, deliver metadata and screenshots. submit:true submits for review"
+  lane :release do |options|
+    submit = submit_for_review?(options)
+    notes = changelog_notes(write: true)   # fail here, not after a full archive
+    verify_version_editable
+    # deliver's own built-in precheck step can't be trusted here: when
+    # authenticating with an App Store Connect API key (as we do), deliver's
+    # precheck_app never forwards `platform` into its internal precheck call
+    # (deliver/runner.rb only sets it in the Apple-ID/username branch), so it
+    # silently checks the (nonexistent) iOS version of this app and crashes
+    # with "undefined method 'copyright' for nil". Run precheck ourselves
+    # first, with the platform set correctly, then tell deliver to skip its
+    # own broken precheck step.
+    precheck_only
+    build_appstore
+    upload_testflight(notes)
+    deliver_app_store(submit: submit)
+  end
+
+  # Re-running `release` after a failed upload rebuilds an archive that is already
+  # sitting in build/ and re-runs precheck, for no gain — the failure is in the
+  # transporter, not the product. This is the retry path.
+  desc "Re-upload the pkg already in build/ (no rebuild) after a transporter failure"
+  lane :release_upload do |options|
+    pkg = pkg_path
+    UI.user_error!("No #{pkg} to upload — run `fastlane release` to build one.") unless File.exist?(pkg)
+    verify_version_editable
+    verify_build_not_uploaded(pkg: pkg)
+    deliver_app_store(submit: submit_for_review?(options), pkg: "#{BUILD_DIR}/#{OUTPUT}.pkg")
+  end
+
+  # fastlane evaluates a lane with the working directory set to fastlane/ — that is
+  # why the sh() calls in this file reach scripts as ../scripts/…. Actions expand
+  # their own path options against the project root, so BUILD_DIR works when handed
+  # to gym or deliver; a plain Ruby File.exist? in a lane does not, and silently
+  # reports the pkg missing.
+  def pkg_path
+    File.expand_path("../#{BUILD_DIR}/#{OUTPUT}.pkg")
+  end
+
+  def deliver_app_store(submit:, pkg: nil)
+    changelog_notes(write: true)   # release_upload reaches deliver without the release lane
+    options = {
+      api_key: asc_api_key,
+      app_identifier: release_app_id,
+      platform: "osx",            # still needed: used directly for version/binary/screenshot steps
+      app_version: get_version_number(xcodeproj: PROJECT, target: SCHEME),
+      submit_for_review: submit,
+      automatic_release: false,
+      overwrite_screenshots: true,
+      force: true,                # skip the HTML metadata preview
+      run_precheck_before_submit: false,
+      precheck_include_in_app_purchases: false
+    }
+    if pkg
+      options[:pkg] = pkg
+    else
+      options[:skip_binary_upload] = true
+      options[:build_number] = FastlaneCore::PkgFileAnalyser.fetch_app_build(pkg_path)
+    end
+    deliver(options)
+  end
+
+  # A transporter error is not proof the binary is missing. On 2026-07-29 the asset
+  # upload of 1.0.0 (31) finished and only the status-polling endpoints answered
+  # 500 (ASSET_SPI / ASSET_UPLOAD), so deliver failed the lane on a build that was
+  # already VALID in App Store Connect. Retrying that upload costs another ~45
+  # minutes of transporter retries to collide with a build that is already there,
+  # and the real remaining work — attach the build to the version, submit — isn't
+  # an upload at all. Ask App Store Connect before spending the time.
+  private_lane :verify_build_not_uploaded do |options|
+    build = FastlaneCore::PkgFileAnalyser.fetch_app_build(options[:pkg])
+    version = FastlaneCore::PkgFileAnalyser.fetch_app_version(options[:pkg])
+    asc_api_key   # sets Spaceship::ConnectAPI.token as a side effect
+    app = Spaceship::ConnectAPI::App.find(release_app_id)
+    existing = Spaceship::ConnectAPI.get_builds(
+      filter: { app: app.id, version: build }, includes: "preReleaseVersion"
+    ).to_models.find { |b| b.pre_release_version&.version == version }
+
+    if existing
+      UI.user_error!(
+        "#{version} (#{build}) is already in App Store Connect (state #{existing.processing_state}) — " \
+        "the previous upload succeeded even if fastlane reported otherwise. Attach it to the version " \
+        "and submit instead of uploading again; bump CURRENT_PROJECT_VERSION only if you actually " \
+        "changed the product."
+      )
+    end
+    UI.success("Verified: #{version} (#{build}) is not yet in App Store Connect.")
+  end
+
+  # deliver never edits an arbitrary version — it calls get_edit_app_store_version
+  # first, and that lookup filters appVersionState down to PREPARE_FOR_SUBMISSION,
+  # DEVELOPER_REJECTED, REJECTED, METADATA_REJECTED, WAITING_FOR_REVIEW and
+  # INVALID_BINARY. A version attached to an open review submission sits in
+  # READY_FOR_REVIEW, which is absent from that list, so the lookup returns nil and
+  # deliver falls through to CREATING a version. Apple then answers with two errors
+  # that both point at the wrong thing:
+  #
+  #   You cannot create a new version of the App in the current state
+  #   The version number has been previously used
+  #
+  # The obvious reading — "bump MARKETING_VERSION" — is wrong and makes it worse:
+  # the create is refused because of the app's state, so a fresh version number is
+  # refused just the same, and now the project claims a version ASC has never seen.
+  # Since deliver runs after a full archive, notarisation and precheck, ask App
+  # Store Connect the one question that matters before spending that time.
+  private_lane :verify_version_editable do
+    asc_api_key   # sets Spaceship::ConnectAPI.token as a side effect
+    app = Spaceship::ConnectAPI::App.find(release_app_id)
+    UI.user_error!("verify_version_editable: no App Store Connect app for #{release_app_id}") if app.nil?
+
+    platform = Spaceship::ConnectAPI::Platform::MAC_OS
+    local_version = get_version_number(xcodeproj: PROJECT, target: SCHEME)
+
+    editable = app.get_edit_app_store_version(platform: platform)
+    if editable
+      if editable.version_string != local_version
+        UI.important(
+          "App Store Connect is editing #{editable.version_string} but this build is " \
+          "#{local_version}; deliver will rename the version."
+        )
+      end
+      UI.success("Verified: #{editable.version_string} is editable (#{editable.app_version_state}).")
+      next
+    end
+
+    # No editable version, so deliver is about to attempt a create that cannot
+    # succeed. Name the actual blockers rather than leaving Apple's two errors to
+    # be re-diagnosed from scratch.
+    blockers = []
+    clash = app.get_app_store_versions(
+      filter: { platform: platform, versionString: local_version }
+    ).first
+    blockers << "#{local_version} already exists in state #{clash.app_version_state}" if clash
+    app.get_review_submissions(filter: { platform: platform })
+       .reject { |s| ["COMPLETE", "CANCELING"].include?(s.state) }
+       .each { |s| blockers << "review submission #{s.id} is #{s.state}" }
+    blockers << "reason not visible from the API — open App Store Connect" if blockers.empty?
+
+    UI.user_error!(
+      "No editable macOS App Store version: #{blockers.join('; ')}. deliver would try to " \
+      "CREATE #{local_version} and Apple would refuse. Detach the version from its open " \
+      "review submission in App Store Connect (that returns it to PREPARE_FOR_SUBMISSION) " \
+      "and re-run, or run `fastlane beta` to get the binary up without touching the version " \
+      "record. Bumping MARKETING_VERSION does NOT fix this."
+    )
+  end
+
+  desc "Record the full-feature App Preview video and upload it to App Store Connect"
+  lane :preview do
+    # Drives AppPreviewDemoUITests (signed build + GUI session required).
+    # Output: fastlane/previews/en-US/app-preview.mp4  (1920×1080, ≤30 s, H.264).
+    sh("../scripts/record-preview.sh")
+    deliver(
+      api_key: asc_api_key,
+      platform: "osx",            # deliver defaults to "ios"; precheck crashes on a Mac app otherwise
+      skip_binary_upload: true,
+      run_precheck_before_submit: false,  # previews/screenshots only; broken for API-key auth on Mac apps anyway
+      skip_metadata: true,
+      skip_screenshots: true,
+      app_review_information: {},
+      force: true,
+      app_previews: {
+        "mac" => {
+          "en-US" => [{ preview_path: "previews/en-US/app-preview.mp4" }]
+        }
+      }
+    )
+  end
+
+  desc "Record the IntelliSense demo video and upload it to App Store Connect"
+  lane :intellisense_demo do
+    # Drives IntelliSenseDemoUITests (signed build + GUI session required).
+    # Output: fastlane/previews/en-US/intellisense-demo.mp4  (1920×1080, ≤29 s, H.264).
+    # NOTE: uploading a single video REPLACES all existing previews for en-US.
+    #       Use upload_all_previews to upload all three at once.
+    sh("../scripts/record-intellisense-demo.sh")
+    deliver(
+      api_key: asc_api_key,
+      platform: "osx",            # deliver defaults to "ios"; precheck crashes on a Mac app otherwise
+      skip_binary_upload: true,
+      run_precheck_before_submit: false,  # previews/screenshots only; broken for API-key auth on Mac apps anyway
+      skip_metadata: true,
+      skip_screenshots: true,
+      app_review_information: {},
+      force: true,
+      app_previews: {
+        "mac" => {
+          "en-US" => [{ preview_path: "previews/en-US/intellisense-demo.mp4" }]
+        }
+      }
+    )
+  end
+
+  desc "Record the tunnel lifecycle demo video and upload it to App Store Connect"
+  lane :tunnel_demo do
+    # Drives TunnelDemoUITests (signed build + GUI session required).
+    # Output: fastlane/previews/en-US/tunnel-demo.mp4  (1920×1080, ≤29 s, H.264).
+    # NOTE: uploading a single video REPLACES all existing previews for en-US.
+    #       Use upload_all_previews to upload all three at once.
+    sh("../scripts/record-tunnel-demo.sh")
+    deliver(
+      api_key: asc_api_key,
+      platform: "osx",            # deliver defaults to "ios"; precheck crashes on a Mac app otherwise
+      skip_binary_upload: true,
+      run_precheck_before_submit: false,  # previews/screenshots only; broken for API-key auth on Mac apps anyway
+      skip_metadata: true,
+      skip_screenshots: true,
+      app_review_information: {},
+      force: true,
+      app_previews: {
+        "mac" => {
+          "en-US" => [{ preview_path: "previews/en-US/tunnel-demo.mp4" }]
+        }
+      }
+    )
+  end
+
+  desc "Upload all three App Preview videos to App Store Connect (record them first)"
+  lane :upload_all_previews do
+    # Run the three recording lanes first, then call this to upload all at once:
+    #   bundle exec fastlane preview
+    #   bundle exec fastlane record_intellisense_demo  (or sh scripts/…)
+    #   bundle exec fastlane record_tunnel_demo
+    #   bundle exec fastlane upload_all_previews
+    # App Store Connect allows up to 3 preview videos per locale; this sets all three.
+    deliver(
+      api_key: asc_api_key,
+      platform: "osx",            # deliver defaults to "ios"; precheck crashes on a Mac app otherwise
+      skip_binary_upload: true,
+      run_precheck_before_submit: false,  # previews/screenshots only; broken for API-key auth on Mac apps anyway
+      skip_metadata: true,
+      skip_screenshots: true,
+      app_review_information: {},
+      force: true,
+      app_previews: {
+        "mac" => {
+          "en-US" => [
+            { preview_path: "previews/en-US/app-preview.mp4" },
+            { preview_path: "previews/en-US/intellisense-demo.mp4" },
+            { preview_path: "previews/en-US/tunnel-demo.mp4" },
+          ]
+        }
+      }
+    )
+  end
+
+  desc "Capture App Store screenshots (UI test) and upload only the screenshots"
+  lane :screenshots do
+    # Drives ScreenshotUITests against a signed build and extracts the PNGs into
+    # fastlane/screenshots/en-US/. Needs a GUI session + xcparse (see the script).
+    sh("../scripts/screenshots.sh")
+    deliver(
+      api_key: asc_api_key,
+      platform: "osx",            # deliver defaults to "ios"; precheck crashes on a Mac app otherwise
+      skip_binary_upload: true,
+      run_precheck_before_submit: false,  # previews/screenshots only; broken for API-key auth on Mac apps anyway
+      skip_metadata: true,            # screenshots only; leaves text metadata alone
+      overwrite_screenshots: true,
+      force: true
+    )
+  end
+
+  # --- Developer ID (notarized .dmg) --------------------------------------
+
+  desc "Build, sign, notarize and package a Developer ID .dmg"
+  lane :developerid do
+    sync_certs("developer_id")
+    app = build_mac_app(
+      project: PROJECT,
+      scheme: SCHEME,
+      configuration: "Release",
+      export_method: "developer-id",
+      output_directory: BUILD_DIR,
+      output_name: OUTPUT,
+      xcargs: "#{sign_args} SWIFT_ACTIVE_COMPILATION_CONDITIONS='$(inherited) UNSANDBOXED' " \
+        "CODE_SIGN_ENTITLEMENTS=sshconfigmanager/sshconfigmanager-direct.entitlements " \
+        "ENABLE_APP_SANDBOX=NO ENABLE_USER_SELECTED_FILES=none"
+    )
+    # gym returns the exported .app path; fall back to the conventional name.
+    app ||= "#{BUILD_DIR}/#{OUTPUT}.app"
+
+    verify_not_sandboxed(app: app)
+
+    notarize(
+      package: app,
+      api_key: asc_api_key,
+      print_log: true
+    )
+
+    dmg = File.join(File.dirname(app), "#{OUTPUT}.dmg")
+    sh("hdiutil", "create", "-volname", "SSH Config Manager",
+       "-srcfolder", app, "-ov", "-format", "UDZO", dmg)
+  end
+
+  # Fails the lane if the .dmg was signed with the sandboxed entitlements file.
+  # Such a build looks fine and boots fine — ProxyCommand and the direct-launch
+  # terminal handoff just silently fall back to their sandboxed behavior. Check
+  # before notarize, which is slow and rate-limited.
+  private_lane :verify_not_sandboxed do |options|
+    app = options[:app]
+    entitlements = sh("codesign", "-d", "--entitlements", ":-", app, log: false)
+    if entitlements.include?("com.apple.security.app-sandbox")
+      UI.user_error!(
+        "Developer ID .app is sandboxed — it was signed with sshconfigmanager.entitlements " \
+        "instead of sshconfigmanager-direct.entitlements, so ProxyCommand and the direct-launch " \
+        "terminal handoff silently fall back to their sandboxed behavior. Do not ship this .dmg."
+      )
+    end
+    UI.success("Verified: the Developer ID .app is not sandboxed.")
+  end
+end

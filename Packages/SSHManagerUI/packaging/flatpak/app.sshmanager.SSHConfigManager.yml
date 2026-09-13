@@ -1,0 +1,63 @@
+# Flatpak manifest for the graphical application.
+#
+# This is the answer for every distribution that is too old for the .deb and the
+# .rpm. Those packages need libadwaita 1.6 from the host; this runtime carries
+# it, so the host's GNOME version and glibc version stop mattering.
+#
+# GNOME 47 is the runtime that introduced libadwaita 1.6, which the app needs.
+# Do not lower it.
+#
+# Local test build:
+#   cd Packages/SSHManagerUI
+#   make release-build          # produces .build/release-container/sshmanager
+#   make flatpak                # builds and installs this manifest
+#
+# For a Flathub submission the `sshmanager` module has to stop reading a local
+# path: Flathub builds are offline and every source needs a checksum. Point it
+# at a tagged release tarball with a sha256, or let Flathub build from the git
+# source. That switch is the remaining work.
+app-id: app.sshmanager.SSHConfigManager
+runtime: org.gnome.Platform
+runtime-version: '47'
+sdk: org.gnome.Sdk
+command: sshmanager
+
+finish-args:
+  # Outbound SSH to arbitrary hosts and ports is the whole product.
+  - --share=network
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  # ~/.ssh is the application's subject matter. A portal cannot express "let the
+  # user browse to their ssh directory" without the user re-granting on every
+  # launch, so the directory is held directly. Nothing else in $HOME is exposed.
+  - --filesystem=~/.ssh
+  # Reuse a running ssh-agent rather than asking for passphrases the agent holds.
+  - --filesystem=xdg-run/ssh-agent.sock
+  # Version history lives beside the app's own data.
+  - --filesystem=xdg-data/sshmanager:create
+  - --talk-name=org.freedesktop.secrets
+  - --talk-name=org.freedesktop.Notifications
+
+modules:
+  - name: sshmanager
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 sshmanager /app/bin/sshmanager
+      - install -Dm644 app.sshmanager.SSHConfigManager.desktop
+        /app/share/applications/app.sshmanager.SSHConfigManager.desktop
+      - install -Dm644 app.sshmanager.SSHConfigManager.metainfo.xml
+        /app/share/metainfo/app.sshmanager.SSHConfigManager.metainfo.xml
+      - install -Dm644 app.sshmanager.SSHConfigManager.svg
+        /app/share/icons/hicolor/scalable/apps/app.sshmanager.SSHConfigManager.svg
+    sources:
+      # The Swift toolchain is not in the GNOME SDK, so the binary is built
+      # first by scripts/release-build.sh and installed here.
+      - type: file
+        path: ../../.build/release-container/sshmanager
+      - type: file
+        path: ../app.sshmanager.SSHConfigManager.desktop
+      - type: file
+        path: ../app.sshmanager.SSHConfigManager.metainfo.xml
+      - type: file
+        path: ../app.sshmanager.SSHConfigManager.svg

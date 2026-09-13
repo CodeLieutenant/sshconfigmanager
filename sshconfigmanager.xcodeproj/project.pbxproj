@@ -1,0 +1,690 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CB1100000000000000000003 /* NIOSSH in Frameworks */ = {isa = PBXBuildFile; productRef = CB1100000000000000000002 /* NIOSSH */; };
+		CB1100000000000000000021 /* NIOSSHRSA in Frameworks */ = {isa = PBXBuildFile; productRef = CB1100000000000000000020 /* NIOSSHRSA */; };
+		CB1100000000000000000042 /* BcryptPBKDF in Frameworks */ = {isa = PBXBuildFile; productRef = CB1100000000000000000041 /* BcryptPBKDF */; };
+		CB1100000000000000000102 /* SSHConfigCore in Frameworks */ = {isa = PBXBuildFile; productRef = CB1100000000000000000101 /* SSHConfigCore */; };
+		CB1100000000000000000112 /* SSHConfigCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = CB1100000000000000000111 /* SSHConfigCrypto */; };
+		CB1100000000000000000202 /* SSHConfigMacUI in Frameworks */ = {isa = PBXBuildFile; productRef = CB1100000000000000000201 /* SSHConfigMacUI */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CB0BF40D2FD1AF6200723DC3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CB0BF3F52FD1AF6100723DC3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CB0BF3FC2FD1AF6100723DC3;
+			remoteInfo = sshconfigmanager;
+		};
+		CB0BF4172FD1AF6200723DC3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CB0BF3F52FD1AF6100723DC3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CB0BF3FC2FD1AF6100723DC3;
+			remoteInfo = sshconfigmanager;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		CB0BF3FD2FD1AF6100723DC3 /* sshconfigmanager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = sshconfigmanager.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB0BF40C2FD1AF6200723DC3 /* sshconfigmanagerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = sshconfigmanagerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB0BF4162FD1AF6200723DC3 /* sshconfigmanagerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = sshconfigmanagerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CBCF16000000000000000001 /* Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Shared.xcconfig; sourceTree = "<group>"; };
+		CBCF16000000000000000002 /* Local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Local.xcconfig.example; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CBDEEFA00000000000000001 /* Exceptions for "sshconfigmanager" folder in "sshconfigmanager" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CB0BF3FC2FD1AF6100723DC3 /* sshconfigmanager */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		CB0BF3FF2FD1AF6100723DC3 /* sshconfigmanager */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CBDEEFA00000000000000001 /* Exceptions for "sshconfigmanager" folder in "sshconfigmanager" target */,
+			);
+			path = sshconfigmanager;
+			sourceTree = "<group>";
+		};
+		CB0BF40F2FD1AF6200723DC3 /* sshconfigmanagerTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = sshconfigmanagerTests;
+			sourceTree = "<group>";
+		};
+		CB0BF4192FD1AF6200723DC3 /* sshconfigmanagerUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = sshconfigmanagerUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CB0BF3FA2FD1AF6100723DC3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB1100000000000000000003 /* NIOSSH in Frameworks */,
+				CB1100000000000000000021 /* NIOSSHRSA in Frameworks */,
+				CB1100000000000000000042 /* BcryptPBKDF in Frameworks */,
+				CB1100000000000000000102 /* SSHConfigCore in Frameworks */,
+				CB1100000000000000000112 /* SSHConfigCrypto in Frameworks */,
+				CB1100000000000000000202 /* SSHConfigMacUI in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB0BF4092FD1AF6200723DC3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB0BF4132FD1AF6200723DC3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CB0BF3F42FD1AF6100723DC3 = {
+			isa = PBXGroup;
+			children = (
+				CBCF16000000000000000010 /* Config */,
+				CB0BF3FF2FD1AF6100723DC3 /* sshconfigmanager */,
+				CB0BF40F2FD1AF6200723DC3 /* sshconfigmanagerTests */,
+				CB0BF4192FD1AF6200723DC3 /* sshconfigmanagerUITests */,
+				CB0BF3FE2FD1AF6100723DC3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CBCF16000000000000000010 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				CBCF16000000000000000001 /* Shared.xcconfig */,
+				CBCF16000000000000000002 /* Local.xcconfig.example */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		CB0BF3FE2FD1AF6100723DC3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CB0BF3FD2FD1AF6100723DC3 /* sshconfigmanager.app */,
+				CB0BF40C2FD1AF6200723DC3 /* sshconfigmanagerTests.xctest */,
+				CB0BF4162FD1AF6200723DC3 /* sshconfigmanagerUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CB0BF3FC2FD1AF6100723DC3 /* sshconfigmanager */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB0BF4202FD1AF6200723DC3 /* Build configuration list for PBXNativeTarget "sshconfigmanager" */;
+			buildPhases = (
+				CB0BF3F92FD1AF6100723DC3 /* Sources */,
+				CB0BF3FA2FD1AF6100723DC3 /* Frameworks */,
+				CB0BF3FB2FD1AF6100723DC3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CB0BF3FF2FD1AF6100723DC3 /* sshconfigmanager */,
+			);
+			name = sshconfigmanager;
+			packageProductDependencies = (
+				CB1100000000000000000002 /* NIOSSH */,
+				CB1100000000000000000020 /* NIOSSHRSA */,
+				CB1100000000000000000041 /* BcryptPBKDF */,
+				CB1100000000000000000101 /* SSHConfigCore */,
+				CB1100000000000000000111 /* SSHConfigCrypto */,
+				CB1100000000000000000201 /* SSHConfigMacUI */,
+			);
+			productName = sshconfigmanager;
+			productReference = CB0BF3FD2FD1AF6100723DC3 /* sshconfigmanager.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CB0BF40B2FD1AF6200723DC3 /* sshconfigmanagerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB0BF4232FD1AF6200723DC3 /* Build configuration list for PBXNativeTarget "sshconfigmanagerTests" */;
+			buildPhases = (
+				CB0BF4082FD1AF6200723DC3 /* Sources */,
+				CB0BF4092FD1AF6200723DC3 /* Frameworks */,
+				CB0BF40A2FD1AF6200723DC3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CB0BF40E2FD1AF6200723DC3 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CB0BF40F2FD1AF6200723DC3 /* sshconfigmanagerTests */,
+			);
+			name = sshconfigmanagerTests;
+			packageProductDependencies = (
+			);
+			productName = sshconfigmanagerTests;
+			productReference = CB0BF40C2FD1AF6200723DC3 /* sshconfigmanagerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CB0BF4152FD1AF6200723DC3 /* sshconfigmanagerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB0BF4262FD1AF6200723DC3 /* Build configuration list for PBXNativeTarget "sshconfigmanagerUITests" */;
+			buildPhases = (
+				CB0BF4122FD1AF6200723DC3 /* Sources */,
+				CB0BF4132FD1AF6200723DC3 /* Frameworks */,
+				CB0BF4142FD1AF6200723DC3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CB0BF4182FD1AF6200723DC3 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CB0BF4192FD1AF6200723DC3 /* sshconfigmanagerUITests */,
+			);
+			name = sshconfigmanagerUITests;
+			packageProductDependencies = (
+			);
+			productName = sshconfigmanagerUITests;
+			productReference = CB0BF4162FD1AF6200723DC3 /* sshconfigmanagerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CB0BF3F52FD1AF6100723DC3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2650;
+				LastUpgradeCheck = 2650;
+				TargetAttributes = {
+					CB0BF3FC2FD1AF6100723DC3 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					CB0BF40B2FD1AF6200723DC3 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = CB0BF3FC2FD1AF6100723DC3;
+					};
+					CB0BF4152FD1AF6200723DC3 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = CB0BF3FC2FD1AF6100723DC3;
+					};
+				};
+			};
+			buildConfigurationList = CB0BF3F82FD1AF6100723DC3 /* Build configuration list for PBXProject "sshconfigmanager" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CB0BF3F42FD1AF6100723DC3;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CB1100000000000000000001 /* XCLocalSwiftPackageReference "Vendor/swift-nio-ssh" */,
+				CB1100000000000000000040 /* XCLocalSwiftPackageReference "Vendor/swift-bcrypt-pbkdf" */,
+				CB1100000000000000000100 /* XCLocalSwiftPackageReference "Packages/SSHConfigKit" */,
+				CB1100000000000000000200 /* XCLocalSwiftPackageReference "Packages/SSHConfigMacUI" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = CB0BF3FE2FD1AF6100723DC3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CB0BF3FC2FD1AF6100723DC3 /* sshconfigmanager */,
+				CB0BF40B2FD1AF6200723DC3 /* sshconfigmanagerTests */,
+				CB0BF4152FD1AF6200723DC3 /* sshconfigmanagerUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CB0BF3FB2FD1AF6100723DC3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB0BF40A2FD1AF6200723DC3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB0BF4142FD1AF6200723DC3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CB0BF3F92FD1AF6100723DC3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB0BF4082FD1AF6200723DC3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB0BF4122FD1AF6200723DC3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CB0BF40E2FD1AF6200723DC3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CB0BF3FC2FD1AF6100723DC3 /* sshconfigmanager */;
+			targetProxy = CB0BF40D2FD1AF6200723DC3 /* PBXContainerItemProxy */;
+		};
+		CB0BF4182FD1AF6200723DC3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CB0BF3FC2FD1AF6100723DC3 /* sshconfigmanager */;
+			targetProxy = CB0BF4172FD1AF6200723DC3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		CB0BF41E2FD1AF6200723DC3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CBCF16000000000000000001 /* Shared.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		CB0BF41F2FD1AF6200723DC3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CBCF16000000000000000001 /* Shared.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		CB0BF4212FD1AF6200723DC3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
+				CODE_SIGN_ENTITLEMENTS = sshconfigmanager/sshconfigmanager.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 45;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = sshconfigmanager/Info.plist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "SSH Config Manager controls Terminal or iTerm to open a window and run the ssh command for the host you chose to connect to.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Dušan Malušev. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).sshconfigmanager";
+				INFOPLIST_KEY_CFBundleDisplayName = "SSH Config Manager";
+				PRODUCT_NAME = "SSH Config Manager";
+				PRODUCT_MODULE_NAME = sshconfigmanager;
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		CB0BF4222FD1AF6200723DC3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
+				CODE_SIGN_ENTITLEMENTS = sshconfigmanager/sshconfigmanager.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 45;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = sshconfigmanager/Info.plist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "SSH Config Manager controls Terminal or iTerm to open a window and run the ssh command for the host you chose to connect to.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Dušan Malušev. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).sshconfigmanager";
+				INFOPLIST_KEY_CFBundleDisplayName = "SSH Config Manager";
+				PRODUCT_NAME = "SSH Config Manager";
+				PRODUCT_MODULE_NAME = sshconfigmanager;
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		CB0BF4242FD1AF6200723DC3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 45;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).sshconfigmanagerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SSH Config Manager.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SSH Config Manager";
+			};
+			name = Debug;
+		};
+		CB0BF4252FD1AF6200723DC3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 45;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).sshconfigmanagerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SSH Config Manager.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SSH Config Manager";
+			};
+			name = Release;
+		};
+		CB0BF4272FD1AF6200723DC3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 45;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).sshconfigmanagerUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TEST_TARGET_NAME = sshconfigmanager;
+			};
+			name = Debug;
+		};
+		CB0BF4282FD1AF6200723DC3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 45;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).sshconfigmanagerUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TEST_TARGET_NAME = sshconfigmanager;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CB0BF3F82FD1AF6100723DC3 /* Build configuration list for PBXProject "sshconfigmanager" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB0BF41E2FD1AF6200723DC3 /* Debug */,
+				CB0BF41F2FD1AF6200723DC3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CB0BF4202FD1AF6200723DC3 /* Build configuration list for PBXNativeTarget "sshconfigmanager" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB0BF4212FD1AF6200723DC3 /* Debug */,
+				CB0BF4222FD1AF6200723DC3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CB0BF4232FD1AF6200723DC3 /* Build configuration list for PBXNativeTarget "sshconfigmanagerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB0BF4242FD1AF6200723DC3 /* Debug */,
+				CB0BF4252FD1AF6200723DC3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CB0BF4262FD1AF6200723DC3 /* Build configuration list for PBXNativeTarget "sshconfigmanagerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB0BF4272FD1AF6200723DC3 /* Debug */,
+				CB0BF4282FD1AF6200723DC3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		CB1100000000000000000001 /* XCLocalSwiftPackageReference "Vendor/swift-nio-ssh" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Vendor/swift-nio-ssh;
+		};
+		CB1100000000000000000100 /* XCLocalSwiftPackageReference "Packages/SSHConfigKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SSHConfigKit;
+		};
+		CB1100000000000000000200 /* XCLocalSwiftPackageReference "Packages/SSHConfigMacUI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SSHConfigMacUI;
+		};
+		CB1100000000000000000040 /* XCLocalSwiftPackageReference "Vendor/swift-bcrypt-pbkdf" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Vendor/swift-bcrypt-pbkdf;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CB1100000000000000000002 /* NIOSSH */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB1100000000000000000001 /* XCLocalSwiftPackageReference "Vendor/swift-nio-ssh" */;
+			productName = NIOSSH;
+		};
+		CB1100000000000000000020 /* NIOSSHRSA */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB1100000000000000000001 /* XCLocalSwiftPackageReference "Vendor/swift-nio-ssh" */;
+			productName = NIOSSHRSA;
+		};
+		CB1100000000000000000041 /* BcryptPBKDF */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB1100000000000000000040 /* XCLocalSwiftPackageReference "Vendor/swift-bcrypt-pbkdf" */;
+			productName = BcryptPBKDF;
+		};
+		CB1100000000000000000101 /* SSHConfigCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB1100000000000000000100 /* XCLocalSwiftPackageReference "Packages/SSHConfigKit" */;
+			productName = SSHConfigCore;
+		};
+		CB1100000000000000000111 /* SSHConfigCrypto */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB1100000000000000000100 /* XCLocalSwiftPackageReference "Packages/SSHConfigKit" */;
+			productName = SSHConfigCrypto;
+		};
+		CB1100000000000000000201 /* SSHConfigMacUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB1100000000000000000200 /* XCLocalSwiftPackageReference "Packages/SSHConfigMacUI" */;
+			productName = SSHConfigMacUI;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = CB0BF3F52FD1AF6100723DC3 /* Project object */;
+}

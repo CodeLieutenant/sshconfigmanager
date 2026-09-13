@@ -1,0 +1,253 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@theme {
+  --font-sans:
+    'Inter Tight', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  --color-background: #09090b;
+  --color-surface: #0b0b0e;
+  --color-card: #141417;
+  --color-muted: #18181b;
+  --color-secondary: #1f1f23;
+  --color-elevated: #26262b;
+
+  --color-foreground: #fafafa;
+  --color-muted-foreground: #a1a1aa;
+  --color-faint: #71717a;
+  --color-silver: #dce0e6;
+  --color-secondary-foreground: #fafafa;
+
+  --color-border: #27272a;
+  --color-border-subtle: #1f1f23;
+  --color-border-strong: #3f3f46;
+
+  --color-primary: oklch(62.3% 0.214 259.815);
+  --color-primary-foreground: oklch(16% 0.0535 259.815);
+  --color-cyan-soft: oklch(71.3% 0.214 259.815);
+  --color-cyan-strong: oklch(56.3% 0.214 259.815);
+  --color-cyan-deep: oklch(38.3% 0.184 259.815);
+  --color-ring: oklch(62.3% 0.214 259.815);
+
+  --breakpoint-2xl: 96rem;
+}
+
+:root {
+  --accent: oklch(62.3% 0.214 259.815);
+  --accent-soft: oklch(from var(--accent) calc(l + 0.09) c h);
+  --accent-strong: oklch(from var(--accent) calc(l - 0.06) c h);
+  --accent-deep: oklch(from var(--accent) calc(l - 0.24) calc(c - 0.03) h);
+  --accent-contrast: oklch(from var(--accent) 0.16 calc(c * 0.25) h);
+  --accent-glow: oklch(from var(--accent) l c h / 0.55);
+  --accent-glow-strong: oklch(from var(--accent) l c h / 0.72);
+
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--accent-contrast);
+  --color-cyan-soft: var(--accent-soft);
+  --color-cyan-strong: var(--accent-strong);
+  --color-cyan-deep: var(--accent-deep);
+  --color-ring: var(--accent);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    line-height: 1.65;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--color-primary) 28%, transparent);
+    color: #fff;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-strong) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border: 3px solid var(--color-background);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-soft);
+  }
+  ::-webkit-scrollbar-thumb:active {
+    background: var(--accent-strong);
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+.bg-grid-sm {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.mask-fade-top {
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 55%, transparent 100%);
+}
+.mask-fade-b {
+  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+}
+
+.text-sheen {
+  background: linear-gradient(180deg, #ffffff 0%, #c7ccd4 78%, #aab0b9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.glow-cyan {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--color-primary) 55%, transparent),
+    transparent 100%
+  );
+  filter: blur(8px);
+}
+
+.ring-hairline {
+  box-shadow: inset 0 0 0 1px var(--color-border-subtle);
+}
+.edge-top {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+    0 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.animate-marquee {
+  animation: marquee 32s linear infinite;
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+#nprogress {
+  pointer-events: none;
+}
+#nprogress .bar {
+  background: var(--color-primary);
+  height: 2px;
+}
+#nprogress .peg {
+  box-shadow:
+    0 0 10px var(--color-primary),
+    0 0 5px var(--color-primary);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+  animation-timing-function: ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+}
+.glass-card-strong {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+}
+
+.app-frame {
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 40px 80px rgba(0, 0, 0, 0.8),
+    0 0 120px color-mix(in oklch, var(--color-accent) 20%, transparent);
+  overflow: hidden;
+}
+
+.section-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.hero-title {
+  font-size: clamp(2.5rem, 5.5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.prose-guide {
+  --tw-prose-invert-body: var(--color-muted-foreground);
+  --tw-prose-invert-headings: var(--color-foreground);
+  --tw-prose-invert-lead: var(--color-muted-foreground);
+  --tw-prose-invert-links: var(--color-primary);
+  --tw-prose-invert-bold: var(--color-foreground);
+  --tw-prose-invert-counters: var(--color-faint);
+  --tw-prose-invert-bullets: var(--color-border-strong);
+  --tw-prose-invert-hr: var(--color-border);
+  --tw-prose-invert-quotes: var(--color-silver);
+  --tw-prose-invert-quote-borders: var(--color-primary);
+  --tw-prose-invert-captions: var(--color-faint);
+  --tw-prose-invert-code: var(--color-foreground);
+  --tw-prose-invert-pre-code: var(--color-silver);
+  --tw-prose-invert-pre-bg: var(--color-surface);
+  --tw-prose-invert-th-borders: var(--color-border-strong);
+  --tw-prose-invert-td-borders: var(--color-border);
+}
+
+.prose-guide :where(code):not(:where(pre code)) {
+  background: var(--color-muted);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 5px;
+  padding: 0.1em 0.35em;
+  font-size: 0.875em;
+  font-weight: 500;
+}
+.prose-guide :where(code):not(:where(pre code))::before,
+.prose-guide :where(code):not(:where(pre code))::after {
+  content: none;
+}
+
+.prose-guide :where(pre) {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}

@@ -1,0 +1,14 @@
+node_modules
+
+/.svelte-kit
+/build
+
+.DS_Store
+Thumbs.db
+
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+/coverage
+src/lib/paraglide
+project.inlang/cache/

@@ -1,0 +1,7 @@
+git_url(ENV["MATCH_GIT_URL"]) unless ENV["MATCH_GIT_URL"].to_s.empty?
+storage_mode("git")
+
+type("development")
+app_identifier([ENV["APP_IDENTIFIER"]]) unless ENV["APP_IDENTIFIER"].to_s.empty?
+team_id(ENV["APPLE_TEAM_ID"]) unless ENV["APPLE_TEAM_ID"].to_s.empty?
+platform("macos")
